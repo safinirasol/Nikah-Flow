@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imam Dashboard - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/accountpage.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'imam_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'imam_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Imam Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'imam_account' %}" class="active">
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'imam_scheduleimam' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-plus" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Availability Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'imam_assignments' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{% url 'pending_application' %}">
+                            <span class="icon">
+                                <i class="fa-solid fa-user-check"></i>
+                            </span>
+                            Pending Marriage Applications
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Imam Profile</h1>
+                <p>Manage your profile information and account settings</p>
+            </div>
+            
+            <div class="dashboard-content">
+                <h2>Profile Information</h2>
+                
+                <div class="profile-container">
+                    <div class="profile-picture-section">
+                        <div class="profile-picture">
+                            {{ user.fullname|slice:":1"|upper }} <!-- Shows first initial -->
+                        </div>
+                    <!--<button class="change-photo-btn">Change Photo</button>-->
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="profile-info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Role</div>
+                                <div class="info-value">
+                                    <span class="role-badge">{{ role_display }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Full Name</div>
+                                <div class="info-value" id="fullname">{{ user.fullname }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">User ID</div>
+                                <div class="info-value" id="userid">{{ user.userid }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Username</div>
+                                <div class="info-value" id="username">{{ user.username }}</div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Email Address</div>
+                                <div class="info-value" id="email">ahmad.admin@nikahflow.com</div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Phone Number</div>
+                                <div class="info-value" id="phone">{{ user.phone_number }}</div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label">Account Status</div>
+                                <div class="info-value">
+                                    <span style="color: #28a745; font-weight: 600;">{{ user.status|capfirst }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="edit-profile-btn">Delete Profile</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</body>
+</html>

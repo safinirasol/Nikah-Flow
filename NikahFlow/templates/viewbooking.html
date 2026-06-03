@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Marriage Application - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/accountpage.css' %}">
+    <style>
+        .application-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .application-id {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .booking-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+        .status-approved {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+        .status-rejected {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+ 
+        .applicant-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .applicant-section {
+            flex: 1;
+            background: #F8F9FA;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #F49BAB;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #7F55B1;
+            text-transform: uppercase;
+        }
+        .document-list {
+            margin-top: 10px;
+        }
+        .document-item {
+            margin-bottom: 8px;
+            
+        }
+        .document-link {
+            text-decoration: none;
+            background: #F49BAB;
+            color: white;
+            border-radius: 20px;
+            padding: 8px 10px;
+            display: inline-block;
+        }
+        .document-missing {
+            color: #721C24;
+            font-style: italic;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover, .btn-danger:hover {
+            opacity: 0.8;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'admin_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'admin_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Admin Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'admin_account' %}" >
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'view_approvedbooking' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'user_management' %}">
+                            <span class="icon">
+                                <i data-lucide="users-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'application_management' %}">
+                            <span class="icon">
+                                <i data-lucide="notepad-text" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Application Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'booking_management' %}" class="active">
+                            <span class="icon">
+                                <i data-lucide="ticket-check" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Booking Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'solemnisation_management' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-heart" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Solemnisation Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monthly_report' %}">
+                            <span class="icon">
+                                <i data-lucide="chart-no-axes-combined" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Monthly Report
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>View Solemnisation Booking</h1>
+                <p>Review the submitted solemnisation booking details</p>
+            </div>
+            
+            <div class="dashboard-content">
+                {% if booking %}
+                    <div class="application-card">
+                        <div class="application-header">
+                            <div>
+                                <span class="application-id">Booking ID: {{ booking.booking_id }}</span>
+                            </div>
+                            <div>
+                                <span class="booking-status status-{{ booking.status|lower }}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <span>Submitted on: {{ booking.created_at|date:"F d, Y" }}</span>
+                        <br><br>
+                        <span>Submitted by @{{ booking.user.username}}</span>
+                        <br><br>
+                        <div class="applicant-info">
+                            <div class="applicant-section">
+                                <div class="section-title">Solemnisation Information</div>
+                                <div><strong>Booking for:</strong> {{ booking.groom_name}} & {{ booking.bride_name }}</div>
+                                <div><strong>Date:</strong> {{ booking.booking_date }}</div>
+                                <div><strong>Time Slot:</strong> {{ booking.time_slot|capfirst }}</div>
+                                <div><strong>Time:</strong> {{ booking.start_time|time:"h:i A"}} - {{ booking.end_time|time:"h:i A"}}</div>
+                                <div><strong>Location:</strong> {{ booking.location }}</div>
+                            </div>                   
+                        </div>
+
+                        {% if booking.status == 'REJECTED' %}
+                            <div class="rejection-reason" style="margin-top: 15px; color: #721C24;">
+                                <strong>Remarks:</strong> {{ booking.remarks|default:"No remarks provided" }}
+                            </div>
+                        {% endif %}
+
+                        {% if booking.status == 'PENDING' %}
+                            <div class="action-buttons">
+                                <form action="{% url 'booking_management' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-back">Back to List</button>
+                                </form>
+                                <form method="post" action="{% url 'approve_booking' booking.booking_id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-approve">Approve Booking</button>
+                                </form>
+                                <!-- Changed reject button to trigger modal -->
+                                <button type="button" class="btn-reject" onclick="openRejectModal()">
+                                    Reject Booking
+                                </button>
+                            </div>
+
+                            <!-- Rejection Confirmation Modal (Pure CSS) -->
+                            <div id="rejectModal" class="modal">
+                                <div class="modal-content">
+                                    <span class="close" onclick="closeRejectModal()">&times;</span>
+                                    <h3>Confirm Rejection</h3>
+                                    <form method="post" action="{% url 'reject_booking' booking.booking_id %}" id="rejectForm">
+                                        {% csrf_token %}
+                                        <p>Are you sure you want to reject this booking?</p>
+                                        <div class="form-group">
+                                            <label for="rejectionRemarks">Remarks (required):</label>
+                                            <textarea class="form-control" id="rejectionRemarks" name="remarks" rows="3" required></textarea>
+                                            <small>Please provide a reason for rejection that will be shown to the applicants.</small>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn-secondary" onclick="closeRejectModal()">Cancel</button>
+                                            <button type="submit" class="btn-danger">Confirm Rejection</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="no-applications">
+                        <p>Booking not found or you don't have permission to view it.</p>
+                        <br>
+                        <a href="{% url 'booking_management' %}" class="btn-back">Back to Booking Management</a>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+<script>
+// Modal functions
+function openRejectModal() {
+    document.getElementById('rejectModal').style.display = 'block';
+}
+
+function closeRejectModal() {
+    document.getElementById('rejectModal').style.display = 'none';
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('rejectModal');
+    if (event.target == modal) {
+        closeRejectModal();
+    }
+}
+
+// Form validation
+document.getElementById('rejectForm').addEventListener('submit', function(e) {
+    const remarks = document.getElementById('rejectionRemarks').value.trim();
+    if (!remarks) {
+        e.preventDefault();
+        alert('Please provide rejection remarks before submitting.');
+    }
+});
+</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</html>

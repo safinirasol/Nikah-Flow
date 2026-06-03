@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/accountpage.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-save {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-cancel {
+        background-color: #f44336;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none; /* Removes underline */
+        }
+        .role-selector {
+            display: flex;
+            gap: 10px;
+        }
+        .role-option {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .role-option.selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .profile-picture {
+            background-color: #f0f0f0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            color: #9B7EBD;
+            border: none;
+            padding: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .password-toggle:hover {
+            color: #F49BAB;
+            border-radius: 4px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'admin_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'admin_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Admin Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'admin_account' %}" >
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'view_approvedbooking' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'user_management' %}" class="active">
+                            <span class="icon">
+                                <i data-lucide="users-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'application_management' %}">
+                            <span class="icon">
+                                <i data-lucide="notepad-text" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Application Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'booking_management' %}">
+                            <span class="icon">
+                                <i data-lucide="ticket-check" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Booking Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'solemnisation_management' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-heart" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Solemnisation Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monthly_report' %}">
+                            <span class="icon">
+                                <i data-lucide="chart-no-axes-combined" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Monthly Report
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Create New User</h1>
+                <p>Add a new user to the system</p>
+            </div>
+            
+            <div class="dashboard-content">
+                <form method="POST" action="{% url 'create_user' %}">
+                    {% csrf_token %}
+                    <h2>User Information</h2>
+                    
+                    <div class="profile-container">
+                        <div class="profile-picture-section">
+                            <div class="profile-picture">
+                                <span id="initial-preview">?</span>
+                            </div>
+                            <input type="file" id="profile-photo" name="profile-photo" style="display: none;">
+                        </div>
+                        
+                        <div class="profile-details">
+                            <div class="profile-info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Role</div>
+                                    <div class="info-value">
+                                        <select name="role" class="form-select" required>
+                                            <option value="">Select Role</option>
+                                            <option value="bridegroom">Bride/Groom</option>
+                                            <option value="imam">Imam</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <div class="info-label">Full Name</div>
+                                    <div class="info-value">
+                                        <input type="text" name="fullname" class="form-input" required 
+                                               oninput="document.getElementById('initial-preview').textContent = this.value ? this.value.charAt(0).toUpperCase() : '?'">
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">ID Number</div>
+                                    <div class="info-value">
+                                        <input type="text" name="id_number" placeholder="990412-04-0987" class="form-input" required>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Username</div>
+                                    <div class="info-value">
+                                        <input type="text" name="username" class="form-input" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <div class="info-label">Email Address</div>
+                                    <div class="info-value">
+                                        <input type="email" name="email" class="form-input" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <div class="info-label">Phone Number</div>
+                                    <div class="info-value">
+                                        <input type="tel" name="phone" class="form-input" placeholder="+6012-3456789" type="tel" pattern="(\+?[0-9]{1,4})?[0-9]{3,4}-[0-9]{6,7}"required>
+                                    </div>
+                                </div>
+                                
+
+                                <div class="info-item">
+                                    <div class="info-label">Password</div>
+                                    <div class="info-value">
+                                        <div class="input-wrapper">
+                                            <input type="password" class="form-input" placeholder="Enter Password" name="password" required>
+                                            <button type="button" class="password-toggle">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <div class="info-label">Confirm Password</div>
+                                    <div class="info-value">
+                                        <div class="input-wrapper">
+                                            <input type="password" class="form-input" placeholder="Confirm Password" name="confirm_password" required>
+                                            <button type="button" class="password-toggle">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-buttons">
+                                <div class="action-buttons">
+                                    <a href="{% url 'user_management' %}" class="btn-back">Cancel</a>
+                                    <button type="submit" class="btn-save">Create User</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+    <script>
+        document.querySelectorAll('.password-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.previousElementSibling;
+                const icon = button.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+    </script>
+        <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</body>
+</html>

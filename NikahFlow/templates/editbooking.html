@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Booking - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/accountpage.css' %}">
+    <style>
+        .schedule-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .schedule-card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 25px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .card-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #7F55B1;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .calendar-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px 5px;
+            background-color: #7F55B1;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .calendar-day:hover {
+            transform: scale(1.05);
+        }
+        
+        .day-available {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .day-unavailable {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .day-pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .day-past {
+            background-color: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .day-selected {
+            border-color: #007bff !important;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        .availability-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #7F55B1;
+            box-shadow: 0 0 0 2px rgba(127, 85, 177, 0.25);
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .time-slot {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        .time-slot:hover {
+            border-color: #7F55B1;
+            background-color: #f8f9fa;
+        }
+        
+        .time-slot.selected {
+            background-color: #7F55B1;
+            color: white;
+            border-color: #7F55B1;
+        }
+        
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+        
+        .btn-clear {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            .schedule-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-grid {
+                gap: 4px;
+            }
+            
+            .calendar-day {
+                font-size: 12px;
+            }
+            
+            .legend {
+                justify-content: center;
+            }
+        }
+        
+        .btn-prevnext {
+            background: #7F55B1;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        /* Slot container styles */
+        .slot-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .slot-container h5 {
+            margin: 0 0 10px 0;
+            color: #7F55B1;
+            font-size: 16px;
+        }
+
+        /* Sub-ranges container */
+        .sub-ranges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        /* Base style for all sub-ranges */
+        .sub-range {
+            position: relative;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Hide the radio button visually but keep it accessible */
+        .sub-range input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Available sub-range styles */
+        .sub-range.available {
+            background-color: #e8f5e9;
+            border: 2px solid #28a745;
+            color: #28a745;
+        }
+
+        .sub-range.available:hover {
+            background-color: #d4edda;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .sub-range.available input[type="radio"]:focus + span {
+            outline: 2px solid #7F55B1;
+            outline-offset: 2px;
+        }
+
+        /* Booked sub-range styles */
+        .sub-range.booked {
+            background-color: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            cursor: not-allowed;
+            opacity: 0.7;
+            position: relative;
+        }
+
+        /* Selected state for available slots */
+        .sub-range.available.selected {
+            background-color: #28a745;
+            color: white;
+            box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Animation for selection */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .sub-range.available.selected {
+            animation: pulse 0.3s ease;
+        }
+        
+        .no-selection {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'admin_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'admin_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Admin Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'admin_account' %}" >
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'view_approvedbooking' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'user_management' %}">
+                            <span class="icon">
+                                <i data-lucide="users-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'application_management' %}">
+                            <span class="icon">
+                                <i data-lucide="notepad-text" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Application Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'booking_management' %}" class="active">
+                            <span class="icon">
+                                <i data-lucide="ticket-check" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Booking Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'solemnisation_management' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-heart" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Solemnisation Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monthly_report' %}">
+                            <span class="icon">
+                                <i data-lucide="chart-no-axes-combined" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Monthly Report
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Edit Booking</h1>
+                <p>Update your solemnisation booking details</p>
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="schedule-container">
+                    <!-- Calendar -->
+                    <div class="schedule-card">
+                        <div class="card-header">
+                            <span class="card-icon">📅</span>
+                            <h2 class="card-title">{{ month_name }} {{ year }} Schedule</h2>
+                            <div style="margin-left: auto; display: flex; gap: 10px;">
+                                <a href="?month={{ prev_month }}&year={{ prev_year }}" class="btn-prevnext">&lt; Prev</a>
+                                <a href="?month={{ next_month }}&year={{ next_year }}" class="btn-prevnext">Next &gt;</a>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-grid">
+                            {% for day in weekdays %}
+                                <div class="calendar-header">{{ day }}</div>
+                            {% endfor %}
+                            
+                            {% for week in calendar_days %}
+                                {% for day in week %}
+                                    {% if day.day %}
+                                        <div class="calendar-day {{ day.css_class }}" 
+                                            onclick="selectDate(this, '{{ day.date }}')"
+                                            data-date="{{ day.date }}"
+                                            data-status="{{ day.status }}"
+                                            data-available="{{ day.is_available|yesno:'true,false' }}">
+                                            {{ day.day }}
+                                        </div>
+                                    {% else %}
+                                        <div class="calendar-day empty"></div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #28a745;"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #dc3545;"></div>
+                                <span>Not Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #ffc107;"></div>
+                                <span>Pending Submission</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #e9ecef;"></div>
+                                <span>Past Date</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Booking Form -->
+                    <div class="schedule-card">
+                        <div class="card-header">
+                            <span class="card-icon">✍️</span>
+                            <h2 class="card-title">Edit Booking</h2>
+                        </div>
+                        
+                        <div class="booking-form">
+                            <form method="POST" action="{% url 'edit_booking' booking.booking_id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="form_id" value="{{ form_id }}">
+                                <div class="form-group">
+                                    <label class="form-label">Groom Name:</label>
+                                    <input type="text" name="groom_name" class="form-control" value="{{ booking.groom_name }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Bride Name:</label>
+                                    <input type="text" name="bride_name" class="form-control" value="{{ booking.bride_name }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Selected Date:</label>
+                                    <input type="text" name="booking_date" class="form-control" 
+                                        value="{{ booking.booking_date|date:'Y-m-d' }}" readonly>
+                                </div>
+                                
+                                {% if selected_date_details %}
+                                <div class="form-group">
+                                    <label class="form-label">Available Time Slots:</label>
+                                    <div class="time-slots">
+                                        {% for time in time_slots %}
+                                        {% with time_value=time.0 time_label=time.1 %}
+                                            {% if time_value in selected_date_details.time_slots %}
+                                                <!-- Available Slot -->
+                                                <div class="slot-container">
+                                                    <h5>{{ time_label }}</h5>
+                                                    <div class="sub-ranges">
+                                                        {% if time_value == 'morning' %}
+                                                            {% for sub_range in selected_date_details.time_slot_ranges.morning %}
+                                                                {% if sub_range not in selected_date_details.taken_sub_ranges.morning %}
+                                                                    <!-- Available sub-range -->
+                                                                    <label class="sub-range available {% if booking.time_slot == time_value and booking.specific_time == sub_range %}selected{% endif %}">
+                                                                        <input type="radio" name="specific_time" value="{{ sub_range }}" 
+                                                                            data-slot="{{ time_value }}" 
+                                                                            {% if booking.time_slot == time_value and booking.specific_time == sub_range %}checked{% endif %} required>
+                                                                        {{ sub_range }}
+                                                                    </label>
+                                                                {% else %}
+                                                                    <!-- Booked sub-range -->
+                                                                    <label class="sub-range booked" style="background-color: #dc3545; color: white; cursor: not-allowed;">
+                                                                        <input type="radio" disabled>
+                                                                        {{ sub_range }} (Booked)
+                                                                    </label>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% elif time_value == 'afternoon' %}
+                                                            {% for sub_range in selected_date_details.time_slot_ranges.afternoon %}
+                                                                {% if sub_range not in selected_date_details.taken_sub_ranges.afternoon %}
+                                                                    <!-- Available sub-range -->
+                                                                    <label class="sub-range available {% if booking.time_slot == time_value and booking.specific_time == sub_range %}selected{% endif %}">
+                                                                        <input type="radio" name="specific_time" value="{{ sub_range }}" 
+                                                                            data-slot="{{ time_value }}" 
+                                                                            {% if booking.time_slot == time_value and booking.specific_time == sub_range %}checked{% endif %} required>
+                                                                        {{ sub_range }}
+                                                                    </label>
+                                                                {% else %}
+                                                                    <!-- Booked sub-range -->
+                                                                    <label class="sub-range booked" style="background-color: #dc3545; color: white; cursor: not-allowed;">
+                                                                        <input type="radio" disabled>
+                                                                        {{ sub_range }} (Booked)
+                                                                    </label>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% elif time_value == 'evening' %}
+                                                            {% for sub_range in selected_date_details.time_slot_ranges.evening %}
+                                                                {% if sub_range not in selected_date_details.taken_sub_ranges.evening %}
+                                                                    <!-- Available sub-range -->
+                                                                    <label class="sub-range available {% if booking.time_slot == time_value and booking.specific_time == sub_range %}selected{% endif %}">
+                                                                        <input type="radio" name="specific_time" value="{{ sub_range }}" 
+                                                                            data-slot="{{ time_value }}" 
+                                                                            {% if booking.time_slot == time_value and booking.specific_time == sub_range %}checked{% endif %} required>
+                                                                        {{ sub_range }}
+                                                                    </label>
+                                                                {% else %}
+                                                                    <!-- Booked sub-range -->
+                                                                    <label class="sub-range booked" style="background-color: #dc3545; color: white; cursor: not-allowed;">
+                                                                        <input type="radio" disabled>
+                                                                        {{ sub_range }} (Booked)
+                                                                    </label>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <!-- Not Available Slot -->
+                                                <label class="time-slot unavailable" style="background-color: #dc3545; color: white; cursor: not-allowed;">
+                                                    <input type="radio" disabled>
+                                                    {{ time_label }}
+                                                </label>
+                                            {% endif %}
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <input type="hidden" name="selected_slot" id="selectedSlot" value="{{ booking.time_slot }}">
+                                <div class="form-group">
+                                    <label class="form-label">Location:</label>
+                                    <input type="text" name="location" class="form-control" value="{{ booking.location }}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Additional Notes:</label>
+                                    <textarea name="notes" class="form-control" rows="3">{{ booking.notes }}</textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-submit">Update Booking</button>
+                                    <a href="{% url 'booking_management' %}" class="btn-back">Cancel</a>
+                                </div>
+                                {% else %}
+                                <div class="no-selection">
+                                    <p>Please select an available date from the calendar</p>
+                                </div>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    // Function called when date is clicked in calendar
+    function selectDate(element, date) {
+        // Only proceed if date is available
+        if (element.dataset.available !== 'true') return;
+        
+        // Redirect to same page with selected_date parameter
+        window.location.href = `?selected_date=${date}`;
+    }
+
+    // Function to handle sub-range selection
+    function handleSubRangeSelection(event) {
+        const selectedSubRange = event.target;
+        if (selectedSubRange && selectedSubRange.name === 'specific_time') {
+            document.getElementById('selectedSlot').value = selectedSubRange.dataset.slot;
+            
+            // Update the UI to show which sub-range is selected
+            document.querySelectorAll('.sub-range').forEach(range => {
+                range.classList.remove('selected');
+            });
+            selectedSubRange.closest('.sub-range').classList.add('selected');
+        }
+    }
+
+    // Initialize event listeners when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners to all sub-range radio buttons
+        document.querySelectorAll('input[name="specific_time"]').forEach(radio => {
+            radio.addEventListener('change', handleSubRangeSelection);
+        });
+        
+        // Highlight the selected date if one exists
+        const selectedDate = "{{ booking.booking_date|date:'Y-m-d' }}";
+        if (selectedDate) {
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                if (day.dataset.date === selectedDate) {
+                    day.classList.add('day-selected');
+                }
+            });
+        }
+        
+        // Highlight the selected sub-range if one exists
+        const selectedSpecificTime = "{{ booking.specific_time }}";
+        if (selectedSpecificTime) {
+            document.querySelectorAll('input[name="specific_time"]').forEach(radio => {
+                if (radio.value === selectedSpecificTime) {
+                    radio.closest('.sub-range').classList.add('selected');
+                }
+            });
+        }
+    });
+</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</body>
+</html>

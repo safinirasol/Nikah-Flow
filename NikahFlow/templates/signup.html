@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+                /* Messages */
+        .messages {
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'homepage' %}" class="btn-login">Home</a>
+                <a href="{% url 'signin' %}" class="btn-login">Log In</a>
+                <a href="{% url 'signup' %}" class="btn-signup">Sign Up</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <div class="main-content">
+            <!-- Messages -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="form-container">
+                <div class="form-logo">
+                    <h1>Nikah Flow</h1>
+                    <div class="tagline">SunnahTie starts from here~</div>
+                </div>
+                <!--for message to display-->
+                <div class="popup {% if not show_popup %}hidden{% endif %}" id="successPopup">
+                    <div class="popup-content">
+                        <div class="checkmark">✔</div>
+                        <h3>Registration Successful!</h3>
+                        <p>You can now log in to your account.</p>
+                        <a href="{% url 'signin' %}" class="go-login-btn">Go to Log In</a>
+                    </div>
+                </div>
+
+                <div class="redirect-text">
+                    Please select your role.
+                </div>
+
+                <div class="role-buttons">
+                    <button class="role-btn" data-role="bridegroom">
+                        <div class="icon"></div>
+                        <span>Bride / Groom</span>
+                    </button>
+                    <button class="role-btn" data-role="imam">
+                        <div class="icon"></div>
+                        <span>Assistant Registrar</span>
+                    </button>
+                    <button class="role-btn" data-role="adminchairman">
+                        <div class="icon"></div>
+                        <span>Admin Chairman of Mosque</span>
+                    </button>
+                </div>
+
+                <h2 class="form-title">Sign Up</h2>
+                <p class="form-subtitle">Fill in your personal details</p>
+
+                <form id="signupForm" method="POST" autocomplete="off">
+                    {% csrf_token %}
+                    <input type="hidden" name="role" id="roleInput" value="bridegroom" required>
+                    <div class="form-group" id="userIdGroup" style="display: none;">
+                        <label class="form-label">User ID</label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-input" placeholder="Enter User ID" name="userid">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <div class="input-wrapper">
+                            <input type="email" class="form-input" placeholder="Enter Email Address" name="email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-input" placeholder="Enter Username" name="username" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ID Number</label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-input" placeholder="990412-04-0987" name="id_number" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-input" placeholder="Enter Full Name" name="fullname" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <div class="input-wrapper">
+                            <input class="form-input" placeholder="+6012-3456789" type="tel" id="phone" name="phonenumber" pattern="(\+?[0-9]{1,4})?[0-9]{3,4}-[0-9]{6,7}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-input" placeholder="Enter Password" name="password" required>
+                            <button type="button" class="password-toggle">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-input" placeholder="Confirm Password" name="confirm_password" required>
+                            <button type="button" class="password-toggle">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="terms">
+                        <label for="terms">I agree with the <a href="#">Privacy Policy</a> and <a href="#">Terms of Use</a></label>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn" disabled>Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#privacy">Whatsapp</a></li>
+                        <li><a href="#terms">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+   <script>
+        // Get all necessary elements
+        const roleButtons = document.querySelectorAll('.role-btn');
+        const roleInput = document.getElementById('roleInput');
+        const userIdGroup = document.getElementById('userIdGroup');
+        const userIdInput = userIdGroup.querySelector('input');
+        const form = document.getElementById('signupForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const termsCheckbox = document.getElementById('terms');
+        const inputs = form.querySelectorAll('input[required]');
+        const passwordToggles = document.querySelectorAll('.password-toggle');
+
+        // Role button selection
+        roleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                roleButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const role = button.getAttribute('data-role');
+                roleInput.value = role;
+                
+                // Show User ID field only for admin/imam
+                if (role === 'adminchairman' || role === 'imam') {
+                    userIdGroup.style.display = 'block';
+                    userIdInput.required = true;
+                } else {
+                    userIdGroup.style.display = 'none';
+                    userIdInput.required = false;
+                }
+                
+                validateForm();
+            });
+        });
+
+        // Password toggle functionality
+        document.querySelectorAll('.password-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.previousElementSibling;
+                const icon = button.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+
+        // Form validation function
+        function validateForm() {
+            let allValid = true;
+            
+            // Check required inputs
+            inputs.forEach(input => {
+                if (input.required && !input.value.trim()) {
+                    allValid = false;
+                }
+            });
+
+            // Check if terms are accepted
+            if (!termsCheckbox.checked) {
+                allValid = false;
+            }
+
+            // Check if passwords match
+            const password = form.querySelector('input[name="password"]');
+            const confirmPassword = form.querySelector('input[name="confirm_password"]');
+            if (password && confirmPassword && password.value !== confirmPassword.value) {
+                allValid = false;
+            }
+
+            // Additional check for User ID if visible
+            if (userIdGroup.style.display !== 'none' && !userIdInput.value.trim()) {
+                allValid = false;
+            }
+
+            // Update button state
+            if (allValid) {
+                submitBtn.classList.add('active');
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.classList.remove('active');
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Add event listeners for form validation
+        inputs.forEach(input => {
+            input.addEventListener('input', validateForm);
+        });
+
+        // Add event listener for terms checkbox
+        termsCheckbox.addEventListener('change', validateForm);
+
+        // Add event listener for user ID input (when visible)
+        userIdInput.addEventListener('input', validateForm);
+
+        // Add event listeners for password fields
+        const passwordFields = form.querySelectorAll('input[type="password"]');
+        passwordFields.forEach(field => {
+            field.addEventListener('input', validateForm);
+        });
+
+        // Initial validation
+        validateForm();
+    </script>
+</body>
+</html>

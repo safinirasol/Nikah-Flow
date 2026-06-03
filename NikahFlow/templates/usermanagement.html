@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/manage.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'admin_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'admin_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Admin Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'admin_account' %}" >
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'view_approvedbooking' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'user_management' %}" class="active">
+                            <span class="icon">
+                                <i data-lucide="users-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'application_management' %}">
+                            <span class="icon">
+                                <i data-lucide="notepad-text" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Application Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'booking_management' %}">
+                            <span class="icon">
+                                <i data-lucide="ticket-check" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Booking Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'solemnisation_management' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-heart" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Solemnisation Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monthly_report' %}">
+                            <span class="icon">
+                                <i data-lucide="chart-no-axes-combined" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Monthly Report
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+            <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px;">
+                <p id="deleteModalMessage">Are you sure you want to delete this application?</p>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button id="deleteModalCancel" class="btn-action" style="background-color: #ccc;">Cancel</button>
+                    <button id="deleteModalConfirm" class="btn-action btn-delete" data-url="">Delete</button>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Messages -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="content-header">
+                <div class="content-header-text">
+                    <h1>User Management</h1>
+                    <p>Manage bride and groom accounts and verify their details.</p>
+                </div>
+                <!--probably go to another page for creating-->
+                <a href="{% url 'create_user' %}" class="create-user-btn"><span>➕</span> Create New User</a>
+            </div>
+            
+            <div class="dashboard-content">
+                <!-- Filter Section -->
+                <form method="GET" class="filter-section">
+                    <div class="filter-item">
+                        <label for="status">Status</label>
+                        <select name="status" id="status">
+                            <option value="">All Status</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="search">Search</label>
+                        <input type="text" name="search" id="search" placeholder="Search by name or email..." value="{{ search_query }}">
+                    </div>
+                    <div class="filter-item">
+                        <button type="submit" class="filter-btn">Filter</button>
+                    </div>
+                </form>
+
+                <!-- User Table -->
+                <div class="user-table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div class="user-avatar">
+                                            {{ user.fullname|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="user-fullname" style="font-weight: 600;">{{ user.fullname }}</div>
+                                            <div style="font-size: 0.9rem; color: #666;">{{ user.username }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="role-badge {% if user.role == 'bridegroom' %}role-bride{% else %}role-groom{% endif %}">
+                                        {{ user.get_role_display }}
+                                    </span>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone_number }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ user.status|lower }}">
+                                        {{  user.status|capfirst }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        {% if user.status == 'pending' %}
+                                            <a href="{% url 'approve_user' user.id %}" class="btn-action btn-approve" >Approve</a>
+                                        {% endif %}
+                                        <a href="{% url 'edit_user' user.id %}" class="btn-action btn-edit">Edit</a>
+                                        <a href="{% url 'delete_user' user.id %}" class="btn-action btn-delete" >Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem; color: #666;">
+                                    No users found matching your criteria.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== DELETE MODAL =====
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteModalMessage = document.getElementById('deleteModalMessage');
+    const deleteModalConfirm = document.getElementById('deleteModalConfirm');
+    const deleteModalCancel = document.getElementById('deleteModalCancel');
+
+    // Handle delete button clicks
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (!this.href) return;
+            
+            const row = this.closest('tr');
+            if (!row) {
+                console.error('Could not find table row');
+                return;
+            }
+            
+            const fullname = row.querySelector('[style*="font-weight: 600"]')?.textContent || 'this user';
+            deleteModalMessage.textContent = `Are you sure you want to delete ${fullname}? This action cannot be undone.`;
+            deleteModalConfirm.dataset.url = this.href;
+            deleteModal.style.display = 'block';
+        });
+    });
+
+    // Confirm delete
+    deleteModalConfirm.addEventListener('click', function() {
+        if (this.dataset.url) {
+            window.location.href = this.dataset.url;
+        }
+    });
+
+    // Cancel delete
+    deleteModalCancel.addEventListener('click', () => {
+        deleteModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === deleteModal) {
+            deleteModal.style.display = 'none';
+        }
+    });
+});
+
+</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Marriage Application - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/accountpage.css' %}">
+    <style>
+        .application-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .application-id {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .application-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+        .status-approved {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+        .status-rejected {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+        .applicant-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .applicant-section {
+            flex: 1;
+            background: #F8F9FA;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #F49BAB;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #7F55B1;
+            text-transform: uppercase;
+        }
+        .document-list {
+            margin-top: 10px;
+        }
+        .document-item {
+            margin-bottom: 8px;
+            
+        }
+        .document-link {
+            text-decoration: none;
+            background: #F49BAB;
+            color: white;
+            border-radius: 20px;
+            padding: 8px 10px;
+            display: inline-block;
+        }
+        .document-missing {
+            color: #721C24;
+            font-style: italic;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover, .btn-danger:hover {
+            opacity: 0.8;
+        }
+    </style>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'imam_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'imam_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Imam Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'imam_account' %}" >
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'imam_scheduleimam' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-plus" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Availability Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'imam_assignments' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{% url 'pending_application' %}" class="active">
+                            <span class="icon">
+                                <i class="fa-solid fa-user-check"></i>
+                            </span>
+                            Pending Marriage Applications
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>View Marriage Application</h1>
+                <p>Review the submitted marriage application details</p>
+            </div>
+            
+            <div class="dashboard-content">
+                {% if application %}
+                <div class="application-card">
+                    <div class="application-header">
+                        <div>
+                            <span class="application-id">Application ID: {{ application.application_id }}</span>
+                        </div>
+                        <div>
+                            <span class="application-status status-{{ application.status|lower }}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <span>Submitted on: {{ application.created_at|date:"F d, Y" }}</span>
+                    <br><br>
+                    <span>Application for @{{ application.user.username }}</span>
+                    <br><br>
+                    
+                    <div class="applicant-info">
+                        <div class="applicant-section">
+                            <div class="section-title">Groom Information</div>
+                                <div><strong>Name:</strong> {{ application.groom_fullname }}</div>
+                                <div><strong>ID:</strong> {{ application.groom_id_number }}</div>
+                                <div><strong>DOB:</strong> {{ application.groom_dob|date:"F d, Y" }}</div>
+                                <div><strong>Nationality:</strong> {{ application.groom_nationality }}</div>
+                                <div><strong>Religion:</strong> {{ application.groom_religion }}</div>
+                                <div><strong>Status:</strong> {{ application.get_groom_marital_status_display }}</div>
+                                <div><strong>Address:</strong> {{ application.groom_address}}</div>
+                            <div class="document-list">
+                                <div class="section-title">Submitted Documents</div>
+                                {% if documents.groom_ic %}
+                                <div class="document-item">
+                                    <a href="{{ application.groom_ic_copy.url }}" class="document-link" target="_blank">Groom IC Copy</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">Groom IC Copy - Missing</div>
+                                {% endif %}
+                                
+                                {% if documents.groom_course %}
+                                <div class="document-item">
+                                    <a href="{{ application.groom_marriage_course.url }}" class="document-link" target="_blank">Marriage Course Certificate</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">Marriage Course Certificate - Missing</div>
+                                {% endif %}
+                                
+                                {% if documents.groom_hiv %}
+                                <div class="document-item">
+                                    <a href="{{ application.groom_hiv_test.url }}" class="document-link" target="_blank">HIV Test Result</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">HIV Test Result - Missing</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="applicant-section">
+                            <div class="section-title">Bride Information</div>
+                                <div><strong>Name:</strong> {{ application.bride_fullname }}</div>
+                                <div><strong>ID:</strong> {{ application.bride_id_number }}</div>
+                                <div><strong>DOB:</strong> {{ application.bride_dob|date:"F d, Y" }}</div>
+                                <div><strong>Nationality:</strong> {{ application.bride_nationality }}</div>
+                                <div><strong>Religion:</strong> {{ application.bride_religion }}</div>
+                                <div><strong>Status:</strong> {{ application.get_bride_marital_status_display }}</div>
+                                <div><strong>Address:</strong> {{ application.bride_address}}</div>
+                            <div class="document-list">
+                                <div class="section-title">Submitted Documents</div>
+                                {% if documents.bride_ic %}
+                                <div class="document-item">
+                                    <a href="{{ application.bride_ic_copy.url }}" class="document-link" target="_blank">Bride IC Copy</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">Bride IC Copy - Missing</div>
+                                {% endif %}
+                                
+                                {% if documents.bride_course %}
+                                <div class="document-item">
+                                    <a href="{{ application.bride_marriage_course.url }}" class="document-link" target="_blank">Marriage Course Certificate</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">Marriage Course Certificate - Missing</div>
+                                {% endif %}
+                                
+                                {% if documents.bride_hiv %}
+                                <div class="document-item">
+                                    <a href="{{ application.bride_hiv_test.url }}" class="document-link" target="_blank">HIV Test Result</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">HIV Test Result - Missing</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="applicant-section">
+                            <div class="section-title">Wali Information</div>
+                            <div><strong>Name:</strong> {{ application.wali_name }}</div>
+                            <div><strong>IC Number:</strong> {{ application.wali_ic }}</div>
+                            <div class="document-list">
+                                <div class="section-title">Submitted Documents</div>
+                                {% if documents.wali_ic %}
+                                <div class="document-item">
+                                    <a href="{{ application.wali_ic_copy.url }}" class="document-link" target="_blank">Wali IC Copy</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">Wali IC Copy - Missing</div>
+                                {% endif %}
+                                
+                                {% if documents.wali_consent %}
+                                <div class="document-item">
+                                    <a href="{{ application.wali_consent.url }}" class="document-link" target="_blank">Wali Consent Form</a>
+                                </div>
+                                {% else %}
+                                <div class="document-item document-missing">Wali Consent Form - Missing</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if application.status == 'REJECTED' %}
+                    <div class="rejection-reason" style="margin-top: 15px; color: #721C24;">
+                        <strong>Remarks:</strong> {{ application.remarks|default:"No remarks provided" }}
+                    </div>
+                    {% endif %}
+
+                    {% if application.status == 'PENDING' %}
+                    <div class="action-buttons">
+                        <form action="{% url 'pending_application' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-back">Back to List</button>
+                        </form>
+                        <form method="post" action="{% url 'approve_application' application.application_id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-approve">Approve Application</button>
+                        </form>
+                        <!-- Changed reject button to trigger modal -->
+                        <button type="button" class="btn-reject" onclick="openRejectModal()">
+                            Reject Application
+                        </button>
+                    </div>
+
+                    <!-- Rejection Confirmation Modal (Pure CSS) -->
+                    <div id="rejectModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeRejectModal()">&times;</span>
+                            <h3>Confirm Rejection</h3>
+                            <form method="post" action="{% url 'reject_application' application.application_id %}" id="rejectForm">
+                                {% csrf_token %}
+                                <p>Are you sure you want to reject this application?</p>
+                                <div class="form-group">
+                                    <label for="rejectionRemarks">Remarks (required):</label>
+                                    <textarea class="form-control" id="rejectionRemarks" name="remarks" rows="3" required></textarea>
+                                    <small>Please provide a reason for rejection that will be shown to the applicants.</small>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-secondary" onclick="closeRejectModal()">Cancel</button>
+                                    <button type="submit" class="btn-danger">Confirm Rejection</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="no-applications">
+                    <p>Application not found or you don't have permission to view it.</p>
+                    <br>
+                    <a href="{% url 'pending_application' %}" class="btn-back">Back to Applications</a>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+<script>
+// Modal functions
+function openRejectModal() {
+    document.getElementById('rejectModal').style.display = 'block';
+}
+
+function closeRejectModal() {
+    document.getElementById('rejectModal').style.display = 'none';
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('rejectModal');
+    if (event.target == modal) {
+        closeRejectModal();
+    }
+}
+
+// Form validation
+document.getElementById('rejectForm').addEventListener('submit', function(e) {
+    const remarks = document.getElementById('rejectionRemarks').value.trim();
+    if (!remarks) {
+        e.preventDefault();
+        alert('Please provide rejection remarks before submitting.');
+    }
+});
+</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</html>

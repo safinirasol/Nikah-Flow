@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Imam - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/accountpage.css' %}">
+    <style>
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #7F55B1 0%, #9C7AC7 100%);
+            color: white;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* Booking Details Styles */
+        .booking-details-card .detail-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .booking-details-card .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #7F55B1;
+            min-width: 120px;
+        }
+
+        .detail-value {
+            display: inline;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Existing Assignments Table */
+        .assignments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .assignments-table th,
+        .assignments-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .assignments-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #7F55B1;
+        }
+
+        .assignments-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Status Badge Styles */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-confirmed,
+        .status-available,
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-unknown {
+            background-color: #e2e3e5;
+            color: #6c757d;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #7F55B1;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #7F55B1;
+            box-shadow: 0 0 0 3px rgba(127, 85, 177, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Availability Container */
+        .availability-container {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .availability-container.active {
+            display: block;
+            border-color: #7F55B1;
+        }
+
+        .availability-container h4 {
+            color: #7F55B1;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .availability-container h5 {
+            color: #7F55B1;
+            margin: 20px 0 10px;
+            font-size: 1rem;
+        }
+
+        /* Availability Highlight */
+        .availability-highlight {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #7F55B1;
+        }
+
+        .availability-highlight strong {
+            color: #7F55B1;
+        }
+
+        /* Time Slots */
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .time-slot {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .time-slot.highlight-slot {
+            background-color: #7F55B1;
+            color: white;
+        }
+
+        /* Availability Calendar */
+        .availability-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .availability-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .availability-day.day-header {
+            background: #7F55B1;
+            color: white;
+            font-weight: bold;
+        }
+
+        .availability-day.available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .availability-day.unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .availability-day.booking-day {
+            border: 3px solid #7F55B1;
+            box-shadow: 0 0 0 2px rgba(127, 85, 177, 0.2);
+        }
+
+        .time-slot-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .time-slot-indicator.time-slot-available {
+            background: #28a745;
+        }
+
+        .time-slot-indicator.time-slot-unavailable {
+            background: #dc3545;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7F55B1 0%, #9C7AC7 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #6a4696 0%, #8a6bb3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(127, 85, 177, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+
+            .main-content {
+                order: 1;
+                padding: 20px;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .availability-calendar {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 4px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+                .application-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .application-id {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .booking-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+        .status-approved {
+            background-color: #D4EDDA;
+            color: #155724;
+        }
+        .status-rejected {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+        .applicant-info {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .applicant-section {
+            flex: 1;
+            background: #F8F9FA;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #F49BAB;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #7F55B1;
+            text-transform: uppercase;
+        }
+        </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'admin_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'admin_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Admin Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'admin_account' %}" >
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'view_approvedbooking' %}" class="active">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'user_management' %}">
+                            <span class="icon">
+                                <i data-lucide="users-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'application_management' %}">
+                            <span class="icon">
+                                <i data-lucide="notepad-text" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Application Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'booking_management' %}">
+                            <span class="icon">
+                                <i data-lucide="ticket-check" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Booking Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'solemnisation_management' %}" >
+                            <span class="icon">
+                                <i data-lucide="calendar-heart" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Solemnisation Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monthly_report' %}">
+                            <span class="icon">
+                                <i data-lucide="chart-no-axes-combined" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Monthly Report
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Assign Imam</h1>
+                <p>Manage approved booking with imam availabilitys</p>
+            </div>
+                    <div class="dashboard-content">
+            <!-- Booking Details Card -->
+            <div class="application-card">
+                <div class="application-header">
+                    <div>
+                        <span class="application-id">Booking ID: {{ booking.booking_id }}</span>
+                    </div>
+                    <div>
+                        <span class="booking-status status-{{ booking.status|lower }}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <br>
+                <div class="applicant-info">
+                    <div class="applicant-section">
+                        <div class="section-title">Booking Details</div>
+                        <div><strong>Couple:</strong> {{ booking.groom_name }} & {{ booking.bride_name }}</div>
+                        <div><strong>Date:</strong> {{ booking.booking_date|date:"d M Y" }}</div>
+                        <div><strong>Time Slot:</strong> {{ booking.time_slot|capfirst }}</div>
+                        <div><strong>Time:</strong> {{ booking.start_time|time:"h:i A"}} - {{booking.end_time|time:"h:i A"}}</div>
+                        <div><strong>Location:</strong> {{ booking.location }}</div>
+                    </div>                   
+                </div>
+            </div>
+
+            <!-- Existing Assignments -->
+            {% if existing_assignments %}
+            <div class="card existing-assignments-card">
+                <div class="card-header">
+                    <h3>Current Assignments</h3>
+                </div>
+                <div class="card-body">
+                    <table class="assignments-table">
+                        <thead>
+                            <tr>
+                                <th>Imam</th>
+                                <th>Status</th>
+                                <th>Assigned On</th>
+                                <th>Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in existing_assignments %}
+                            <tr>
+                                <td>{{ assignment.imam.fullname }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ assignment.status|lower }}">
+                                        {{ assignment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ assignment.assigned_at|date:"d M Y" }}</td>
+                                <td>{{ assignment.remarks|default:"-" }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                            <a href="#" class="btn-action btn-delete" >Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Imam Selection and Availability -->
+            <div class="card imam-availability-card">
+                <div class="card-header">
+                    <h3>Select Imam and Check Availability</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'assign_imam' booking.booking_id %}">
+                        {% csrf_token %}
+                        
+                        <!-- Imam Selection -->
+                        <div class="form-group">
+                            <label for="imam">Select Imam</label>
+                            <select name="imam" id="imam" class="form-control" required onchange="showImamAvailability(this.value)">
+                                <option value="">-- Select Imam --</option>
+                                {% for imam in imams %}
+                                <option value="{{ imam.id }}">{{ imam.fullname }} ({{ imam.username }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- Dynamic Availability Display -->
+                        {% for imam in imams %}
+                        <div id="availability-{{ imam.id }}" class="availability-container" style="display: none;">
+                            <h4>{{ imam.fullname }}'s Availability</h4>
+                            
+                            <!-- Booking Date Availability -->
+                            <div class="availability-highlight">
+                                <strong>Booking Date ({{ booking_date|date:"d M Y" }}):</strong>
+                                {% for day in imam_availabilities.items %}
+                                    {% if day.0 == imam.id %}
+                                        {% for avail in day.1 %}
+                                            {% if avail.date == booking_date %}
+                                                <span class="status-badge status-{{ avail.status }}">
+                                                    {{ avail.status|title }}
+                                                </span>
+                                                {% if avail.time_slots %}
+                                                    <div class="time-slots">
+                                                        Available slots:
+                                                        {% for slot in avail.time_slots %}
+                                                            <span class="time-slot {% if slot == booking.time_slot %}highlight-slot{% endif %}">
+                                                                {{ slot|capfirst }}
+                                                            </span>
+                                                        {% empty %}
+
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Weekly Availability Calendar -->
+                            <h5>Weekly Availability ({{ booking_date|date:"d M Y" }} week)</h5>
+                            <div class="availability-calendar">
+                                <!-- Day headers -->
+                                {% for day in week_days %}
+                                    <div class="availability-day day-header">{{ day }}</div>
+                                {% endfor %}
+                                
+                                <!-- Calendar days -->
+                                {% for day_data in imam_availabilities.items %}
+                                    {% if day_data.0 == imam.id %}
+                                        {% for day in day_data.1 %}
+                                            <div class="availability-day 
+                                                {% if day.date == booking_date %}booking-day{% endif %}
+                                                {% if day.status == 'available' %}available{% elif day.status == 'unavailable' %}unavailable{% endif %}">
+                                                {{ day.date|date:"d" }}
+                                                {% if day.status == 'available' %}
+                                                    <span class="time-slot-indicator time-slot-available"></span>
+                                                {% elif day.status == 'unavailable' %}
+                                                    <span class="time-slot-indicator time-slot-unavailable"></span>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="form-group">
+                            <label for="remarks">Remarks (Optional)</label>
+                            <textarea name="remarks" class="form-control" id="remarks" rows="3" placeholder="Any special instructions for the imam..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Assign Imam</button>
+                            <a href="{% url 'view_approvedbooking' %}" class="btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>     
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function showImamAvailability(imamId) {
+            // Hide all availability containers
+            document.querySelectorAll('.availability-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // Show the selected imam's availability
+            if (imamId) {
+                const container = document.getElementById(`availability-${imamId}`);
+                if (container) {
+                    container.style.display = 'block';
+                }
+            }
+        }
+
+        // Initialize to show the first imam's availability if one is selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('imam');
+            if (select.value) {
+                showImamAvailability(select.value);
+            }
+        });
+    </script>
+        <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</body>
+</html>

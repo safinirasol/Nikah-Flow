@@ -1,0 +1,1 @@
+Nikah Solemnisation Management System is a Django web application for handling wedding application submission, document uploads, imam scheduling, booking approvals, and monthly reporting. It supports multiple user roles, including bride/groom, imam, and admin chairman, and uses SQLite for data storage and local media uploads for application documents.

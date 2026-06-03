@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Marriage Application - Nikah Flow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/manage.css' %}">
+    <style>
+        .document-item {
+            margin-bottom: 8px; /* Adjust this value as needed for desired spacing */
+            display: block; /* Ensures each item takes its own line */
+        }
+
+        /* You might also want to style your role-badge for consistency if needed */
+        .role-badge {
+            display: inline-block; /* Or block if you want them to always stack */
+            padding: 0.25em 0.5em;
+            border-radius: 0.30em;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #fff; /* Example color */
+            background-color: #7F55B1; /* Default badge color */
+            margin-bottom: 0; /* Ensure no default margin from the span itself */
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                <div class="logo-text">
+                    <div class="logo">Nikah Flow</div>
+                    <div class="logo-subtitle">Islamic Marriage Preparation System</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'admin_account' %}" class="btn-login">Profile</a>
+                <a href="{% url 'admin_account' %}" class="btn-login">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-signup">Log Out</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon"><i class="fa-solid fa-mosque"></i></div>
+                    <div class="sidebar-logo-text">Admin Panel</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="{% url 'admin_account' %}" >
+                            <span class="icon">
+                                <i data-lucide="circle-user-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'view_approvedbooking' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-clock" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Imam Solemnisation Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'user_management' %}">
+                            <span class="icon">
+                                <i data-lucide="users-round" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'application_management' %}" class="active">
+                            <span class="icon">
+                                <i data-lucide="notepad-text" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Application Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'booking_management' %}">
+                            <span class="icon">
+                                <i data-lucide="ticket-check" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Booking Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'solemnisation_management' %}">
+                            <span class="icon">
+                                <i data-lucide="calendar-heart" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Solemnisation Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'monthly_report' %}">
+                            <span class="icon">
+                                <i data-lucide="chart-no-axes-combined" class="w-4 h-4" stroke="currentColor"></i>
+                            </span>
+                            Monthly Report
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4);">
+            <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px;">
+                <p id="deleteModalMessage">Are you sure you want to delete this application?</p>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button id="deleteModalCancel" class="btn-action" style="background-color: #ccc;">Cancel</button>
+                    <button id="deleteModalConfirm" class="btn-action btn-delete" data-url="">Delete</button>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Messages -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="content-header">
+                <div class="content-header-text">
+                    <h1>Manage Marriage Applications</h1>
+                    <p>Create and edit marriage applications</p>
+                </div>
+                <a href="{% url 'create_application' %}" class="create-user-btn"><span>➕</span> Create New Marriage Application</a>
+            </div>
+            <div class="dashboard-content">
+                <!-- Filter Section -->
+                <form method="GET" class="filter-section">
+                    <div class="filter-item">
+                        <label for="status">Status</label>
+                        <select name="status" id="status">
+                            <option value="">All Status</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="search">Search</label>
+                        <input type="text" name="search" id="search" placeholder="Search by name or application ID..." value="{{ search_query }}">
+                    </div>
+                    <div class="filter-item">
+                        <button type="submit" class="filter-btn">Filter</button>
+                    </div>
+                </form>
+
+                <!-- Application Table -->
+                <div class="user-table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Couple</th>
+                                <th>Submitted Date</th>
+                                <th>Documents</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in applications %}
+                            <tr>
+                                <td>
+                                    <div class="application-id">
+                                        {{ application.application_id|truncatechars:8 }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div class="user-avatar">
+                                            {{ application.groom_fullname|first|upper }}{{ application.bride_fullname|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="couple-names" style="font-weight: 600;">
+                                                {{ application.groom_fullname }} & {{ application.bride_fullname }}
+                                            </div>
+                                            <div style="font-size: 0.9rem; color: #666;">
+                                                Submitted by: {{ application.user.username }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ application.created_at|date:"d M Y" }}
+                                </td>
+                                <td>
+                                    <div class="document-item">
+                                        {% if application.groom_ic_copy and application.bride_ic_copy %}
+                                            <span class="role-badge">IC Copy</span>
+                                        {% else %}
+                                            <span class="role-badge">IC Missing</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="document-item">
+                                        {% if application.groom_hiv_test and application.bride_hiv_test %}
+                                            <span class="role-badge">HIV Test Copy</span>
+                                        {% else %}
+                                            <span class="role-badge">HIV Test Missing</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="document-item">
+                                        {% if application.groom_marriage_course and application.bride_marriage_course %}
+                                            <span class="role-badge">Course Copy</span>
+                                        {% else %}
+                                            <span class="role-badge">Course Missing</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="document-item">
+                                        {% if application.wali_ic_copy and application.wali_consent %}
+                                            <span class="role-badge">Wali's Copy</span>
+                                        {% else %}
+                                            <span class="role-badge">Wali's Missing</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ application.status|lower }}">
+                                        {{ application.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        {% if application.status == 'PENDING' %}
+                                            <a href="{% url 'edit_application' application.application_id %}" class="btn-action btn-edit">Edit</a>
+                                            <a href="{% url 'delete_application' application.application_id %}" class="btn-action btn-delete" >Delete</a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem; color: #666;">
+                                    No marriage applications found matching your criteria.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>User Access</h3>
+                    <ul>
+                        <li><a href="#bride-groom">Bride & Groom Portal</a></li>
+                        <li><a href="#imam">Imam Dashboard</a></li>
+                        <li><a href="#admin">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#contact">Email</a></li>
+                        <li><a href="#whatsapp">Whatsapp</a></li>
+                        <li><a href="#telegram">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nikah Flow - Official Islamic Marriage Preparation System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== DELETE MODAL =====
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteModalMessage = document.getElementById('deleteModalMessage');
+    const deleteModalConfirm = document.getElementById('deleteModalConfirm');
+    const deleteModalCancel = document.getElementById('deleteModalCancel');
+
+    // Handle delete button clicks
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const row = this.closest('tr');
+            if (!row) {
+                console.error('Could not find table row');
+                return;
+            }
+            
+            const coupleNames = row.querySelector('.couple-names')?.textContent || 'this application';
+            deleteModalMessage.textContent = `Are you sure you want to delete the application for ${coupleNames}? This action cannot be undone.`;
+            
+            // Set the delete URL
+            deleteModalConfirm.dataset.url = this.href;
+            deleteModal.style.display = 'block';
+        });
+    });
+
+    // Confirm delete
+    deleteModalConfirm.addEventListener('click', function() {
+        if (this.dataset.url) {
+            window.location.href = this.dataset.url; // Simply redirect
+        }
+    });
+
+    // Cancel delete
+    deleteModalCancel.addEventListener('click', () => {
+        deleteModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === deleteModal) {
+            deleteModal.style.display = 'none';
+        }
+    });
+});
+</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script> lucide.createIcons(); </script>
+</html>
