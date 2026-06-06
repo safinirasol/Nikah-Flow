@@ -61,9 +61,7 @@ The system supports:
 ## Important Notes
 
 - The app uses a custom `User` model in `NikahFlow/models.py` and session-based login in `NikahFlow/views.py`.
-- Admin and imam accounts require pre-defined IDs:
-  - Admin ID: `adminmasjid0411`
-  - Imam ID: `imammasjid1104`
+- Admin and imam accounts require pre-defined IDs
 - Debug mode is enabled in `SOLEMNISATION_WESBITE/settings.py`; this project should be hardened before production use.
 
 ## Useful URLs
